@@ -24,8 +24,29 @@ export default function KitchenScreen() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleMarkCompleted = (id: string) => {
-    //markCompleted(id)
+  const [loading, setLoading] = useState<string | null>(null);
+
+  const handleMarkCompleted = async (id: string) => {
+    setLoading(id);
+    try {
+      const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:5000/";
+      const res = await axios.post(
+        BACKEND_URL + "api/checkin/completeCheckin",
+        {
+          id: id,
+        }
+      );
+
+      const resCheckin = await axios.get(
+        process.env.BACKEND_URL + "api/checkin/",
+        {}
+      );
+      setActiveCheckin(resCheckin.data);
+    } catch (error) {
+      console.error("Error marking as completed:", error);
+    } finally {
+      setLoading(null); // Reset loading state
+    }
   };
 
   const handleRemoveCheckin = (id: string) => {
@@ -89,7 +110,7 @@ export default function KitchenScreen() {
                   <tbody>
                     {activeCheckin.map((customer) => (
                       <tr
-                        key={customer.id}
+                        key={customer._id}
                         className="border-b border-gray-100"
                       >
                         <td className="py-4 px-4 font-semibold">
@@ -101,12 +122,21 @@ export default function KitchenScreen() {
                         </td>
                         <td className="py-4 px-4 text-center">
                           <button
-                            onClick={() => handleMarkCompleted(customer.id)}
-                            className="w-8 h-8 border-2 border-gray-400 rounded inline-flex items-center justify-center hover:bg-green-50 hover:border-green-500 transition-colors"
+                            onClick={() => handleMarkCompleted(customer._id)}
+                            className={`w-8 h-8 border-2 rounded inline-flex items-center justify-center transition-colors ${
+                              loading === customer._id
+                                ? "border-gray-400 bg-gray-200 cursor-not-allowed"
+                                : "border-gray-400 hover:bg-green-50 hover:border-green-500"
+                            }`}
                             aria-label="Mark as completed"
+                            disabled={loading === customer._id} // Disable button while loading
                           >
-                            {customer.completed && (
-                              <Check className="h-5 w-5 text-green-600" />
+                            {loading === customer._id ? (
+                              <div className="loader w-4 h-4 border-2 border-t-transparent border-gray-400 rounded-full animate-spin"></div>
+                            ) : (
+                              customer.completed && (
+                                <Check className="h-5 w-5 text-green-600" />
+                              )
                             )}
                           </button>
                         </td>
