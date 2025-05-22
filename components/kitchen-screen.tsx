@@ -111,6 +111,7 @@ export default function KitchenScreen() {
                       <th className="text-left py-2 px-4">Name</th>
                       <th className="text-left py-2 px-4">Phone</th>
                       <th className="text-left py-2 px-4">Time</th>
+                      <th className="text-left py-2 px-4">Order Details</th>
                       <th className="text-center py-2 px-4">Status</th>
                     </tr>
                   </thead>
@@ -127,6 +128,7 @@ export default function KitchenScreen() {
                         <td className="py-4 px-4">
                           {formatTime(customer.checkInTime)}
                         </td>
+                        <td className="py-4 px-4">{customer.order_details}</td>
                         <td className="py-4 px-4 text-center">
                           <button
                             onClick={() => handleMarkCompleted(customer._id)}
