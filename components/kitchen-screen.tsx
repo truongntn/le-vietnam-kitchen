@@ -41,7 +41,7 @@ interface Order {
   phone: string;
   name: string;
   orderNumber: string;
-  status: 'pending' | 'preparing' | 'ready' | 'delivered';
+  status: 'pending' | 'preparing' | 'ready' | 'delivered' | 'completed';
   totalAmount: number;
   subtotal: number;
   tax: number;
@@ -215,6 +215,26 @@ export default function KitchenScreen() {
     }
   };
 
+  const handleMarkOrderCompleted = async (orderId: string) => {
+    setLoading(orderId);
+    try {
+      const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:5000/";
+      await axios.put(
+        BACKEND_URL + `api/orders/${orderId}/status`,
+        { status: 'completed' }
+      );
+      
+      // Refresh orders data
+      const res = await axios.get(BACKEND_URL + "api/orders/", {});
+      const ordersArray = res.data && res.data.orders && Array.isArray(res.data.orders) ? res.data.orders : [];
+      setOrders(ordersArray);
+    } catch (error) {
+      console.error("Error marking order as completed:", error);
+    } finally {
+      setLoading(null);
+    }
+  };
+
   const handleRemoveCheckin = (id: string) => {
     //removeCustomer(id)
   };
@@ -241,6 +261,8 @@ export default function KitchenScreen() {
         return 'bg-green-100 text-green-800';
       case 'delivered':
         return 'bg-gray-100 text-gray-800';
+      case 'completed':
+        return 'bg-green-100 text-green-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -393,8 +415,7 @@ export default function KitchenScreen() {
                           <th className="text-left py-2 px-4">Order Time</th>
                           <th className="text-left py-2 px-4">Order Details</th>
                           <th className="text-left py-2 px-4">Total</th>
-                          {/*<th className="text-center py-2 px-4">Status</th>
-                          <th className="text-center py-2 px-4">Actions</th>*/}
+                          <th className="text-center py-2 px-4">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -455,48 +476,80 @@ export default function KitchenScreen() {
                                 </div>
                               </div>
                             </td>
-                            <td className="py-4 px-4">
-                              ${order.totalAmount.toFixed(2)}
-                            </td>
-                            {/*<td className="py-4 px-4 text-center">
-                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                              </span>
-                            </td>
-                            <td className="py-4 px-4 text-center">
-                              <div className="flex flex-col gap-2">
-                                {order.status === 'pending' && (
-                                  <button
-                                    onClick={() => handleUpdateOrderStatus(order._id, 'preparing')}
-                                    disabled={loading === order._id}
-                                    className="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 disabled:opacity-50"
-                                  >
-                                    Start Preparing
-                                  </button>
-                                )}
-                                {order.status === 'preparing' && (
-                                  <button
-                                    onClick={() => handleUpdateOrderStatus(order._id, 'ready')}
-                                    disabled={loading === order._id}
-                                    className="px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600 disabled:opacity-50"
-                                  >
-                                    Mark Ready
-                                  </button>
-                                )}
-                                {order.status === 'ready' && (
-                                  <button
-                                    onClick={() => handleUpdateOrderStatus(order._id, 'delivered')}
-                                    disabled={loading === order._id}
-                                    className="px-3 py-1 bg-gray-500 text-white text-xs rounded hover:bg-gray-600 disabled:opacity-50"
-                                  >
-                                    Mark Delivered
-                                  </button>
-                                )}
-                                {loading === order._id && (
-                                  <div className="loader w-4 h-4 border-2 border-t-transparent border-gray-400 rounded-full animate-spin mx-auto"></div>
-                                )}
-                              </div>
-                            </td>*/}
+                                                          <td className="py-4 px-4">
+                                ${order.totalAmount.toFixed(2)}
+                              </td>
+                              <td className="py-4 px-4 text-center">
+                                <div className="flex justify-center">
+                                  {order.status === 'pending' && (
+                                    <button
+                                      onClick={() => handleMarkOrderCompleted(order._id)}
+                                      disabled={loading === order._id}
+                                      className={`w-8 h-8 border-2 rounded inline-flex items-center justify-center transition-colors ${
+                                        loading === order._id
+                                          ? "border-gray-400 bg-gray-200 cursor-not-allowed"
+                                          : "border-gray-400 hover:bg-green-50 hover:border-green-500"
+                                      }`}
+                                      aria-label="Mark order as completed"
+                                    >
+                                      {loading === order._id ? (
+                                        <div className="loader w-4 h-4 border-2 border-t-transparent border-gray-400 rounded-full animate-spin"></div>
+                                      ) : null}
+                                    </button>
+                                  )}
+                                  {order.status === 'preparing' && (
+                                    <button
+                                      onClick={() => handleMarkOrderCompleted(order._id)}
+                                      disabled={loading === order._id}
+                                      className={`w-8 h-8 border-2 rounded inline-flex items-center justify-center transition-colors ${
+                                        loading === order._id
+                                          ? "border-gray-400 bg-gray-200 cursor-not-allowed"
+                                          : "border-gray-400 hover:bg-green-50 hover:border-green-500"
+                                      }`}
+                                      aria-label="Mark order as completed"
+                                    >
+                                      {loading === order._id ? (
+                                        <div className="loader w-4 h-4 border-2 border-t-transparent border-gray-400 rounded-full animate-spin"></div>
+                                      ) : null}
+                                    </button>
+                                  )}
+                                  {order.status === 'ready' && (
+                                    <button
+                                      onClick={() => handleMarkOrderCompleted(order._id)}
+                                      disabled={loading === order._id}
+                                      className={`w-8 h-8 border-2 rounded inline-flex items-center justify-center transition-colors ${
+                                        loading === order._id
+                                          ? "border-gray-400 bg-gray-200 cursor-not-allowed"
+                                          : "border-gray-400 hover:bg-green-50 hover:border-green-500"
+                                      }`}
+                                      aria-label="Mark order as completed"
+                                    >
+                                      {loading === order._id ? (
+                                        <div className="loader w-4 h-4 border-2 border-t-transparent border-gray-400 rounded-full animate-spin"></div>
+                                      ) : null}
+                                    </button>
+                                  )}
+                                  {order.status === 'delivered' && (
+                                    <button
+                                      onClick={() => handleMarkOrderCompleted(order._id)}
+                                      disabled={loading === order._id}
+                                      className={`w-8 h-8 border-2 rounded inline-flex items-center justify-center transition-colors ${
+                                        loading === order._id
+                                          ? "border-gray-400 bg-gray-200 cursor-not-allowed"
+                                          : "border-gray-400 hover:bg-green-50 hover:border-green-500"
+                                      }`}
+                                      aria-label="Mark order as completed"
+                                    >
+                                      {loading === order._id ? (
+                                        <div className="loader w-4 h-4 border-2 border-t-transparent border-gray-400 rounded-full animate-spin"></div>
+                                      ) : null}
+                                    </button>
+                                  )}
+                                  {loading === order._id && (
+                                    <div className="loader w-4 h-4 border-2 border-t-transparent border-gray-400 rounded-full animate-spin mx-auto"></div>
+                                  )}
+                                </div>
+                              </td>
                           </tr>
                         ))}
                       </tbody>
