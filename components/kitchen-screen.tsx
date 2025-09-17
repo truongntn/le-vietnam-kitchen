@@ -41,7 +41,7 @@ interface Order {
   phone: string;
   name: string;
   orderNumber: string;
-  status: 'pending' | 'preparing' | 'ready' | 'delivered' | 'completed';
+  status: "pending" | "preparing" | "ready" | "delivered" | "completed";
   totalAmount: number;
   subtotal: number;
   tax: number;
@@ -60,24 +60,32 @@ export default function KitchenScreen() {
   const [activeCheckin, setActiveCheckin] = useState<Customer[]>([]);
   const [completedCheckin, setCompletedCheckin] = useState<Customer[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [activeTab, setActiveTab] = useState<'customers' | 'orders'>('customers');
-  const [orderDetails, setOrderDetails] = useState<{[key: string]: OrderItem[]}>({});
-
-
+  const [activeTab, setActiveTab] = useState<"customers" | "orders">(
+    "customers"
+  );
+  const [orderDetails, setOrderDetails] = useState<{
+    [key: string]: OrderItem[];
+  }>({});
 
   useEffect(() => {
     const checkinData = async () => {
       const res = await axios.get(process.env.BACKEND_URL + "api/checkin/", {});
       setActiveCheckin(res.data);
     };
-    
+
     const ordersData = async () => {
       try {
-        const res = await axios.get(process.env.BACKEND_URL + "api/orders/", {});
+        const res = await axios.get(
+          process.env.BACKEND_URL + "api/orders/",
+          {}
+        );
         // Extract orders from the response structure
-        const ordersArray = res.data && res.data.orders && Array.isArray(res.data.orders) ? res.data.orders : [];
+        const ordersArray =
+          res.data && res.data.orders && Array.isArray(res.data.orders)
+            ? res.data.orders
+            : [];
         setOrders(ordersArray);
-        
+
         // Auto-load order details for each order
         for (const order of ordersArray) {
           await fetchOrderDetails(order._id);
@@ -92,14 +100,14 @@ export default function KitchenScreen() {
               _id: "user1",
               phone: "+1234567890",
               name: "John Doe",
-              rewardPoints: 2
+              rewardPoints: 2,
             },
             phone: "+1234567890",
             name: "John Doe",
             orderNumber: "ORD1234567890",
-            status: 'pending' as const,
-            totalAmount: 25.50,
-            subtotal: 25.50,
+            status: "pending" as const,
+            totalAmount: 25.5,
+            subtotal: 25.5,
             tax: 0,
             discount: 0,
             paymentMethod: "cash",
@@ -108,7 +116,7 @@ export default function KitchenScreen() {
             estimatedPickupTime: null,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            __v: 0
+            __v: 0,
           },
           {
             _id: "2",
@@ -116,12 +124,12 @@ export default function KitchenScreen() {
               _id: "user2",
               phone: "+1234567891",
               name: "Jane Smith",
-              rewardPoints: 1
+              rewardPoints: 1,
             },
             phone: "+1234567891",
             name: "Jane Smith",
             orderNumber: "ORD1234567891",
-            status: 'preparing' as const,
+            status: "preparing" as const,
             totalAmount: 18.75,
             subtotal: 18.75,
             tax: 0,
@@ -132,8 +140,8 @@ export default function KitchenScreen() {
             estimatedPickupTime: null,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            __v: 0
-          }
+            __v: 0,
+          },
         ];
         setOrders(mockOrders);
       }
@@ -165,10 +173,7 @@ export default function KitchenScreen() {
         }
       );
 
-      const resCheckin = await axios.get(
-        BACKEND_URL + "api/checkin/",
-        {}
-      );
+      const resCheckin = await axios.get(BACKEND_URL + "api/checkin/", {});
       setActiveCheckin(resCheckin.data);
     } catch (error) {
       console.error("Error marking as completed:", error);
@@ -181,32 +186,37 @@ export default function KitchenScreen() {
     try {
       const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:5000/";
       const res = await axios.get(BACKEND_URL + `api/orders/${orderId}`);
-      setOrderDetails(prev => ({
+      setOrderDetails((prev) => ({
         ...prev,
-        [orderId]: res.data.orderDetails || []
+        [orderId]: res.data.orderDetails || [],
       }));
     } catch (error) {
       console.error("Error fetching order details:", error);
       // Set empty array if API doesn't exist yet
-      setOrderDetails(prev => ({
+      setOrderDetails((prev) => ({
         ...prev,
-        [orderId]: []
+        [orderId]: [],
       }));
     }
   };
 
-  const handleUpdateOrderStatus = async (orderId: string, newStatus: Order['status']) => {
+  const handleUpdateOrderStatus = async (
+    orderId: string,
+    newStatus: Order["status"]
+  ) => {
     setLoading(orderId);
     try {
       const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:5000/";
-      await axios.put(
-        BACKEND_URL + `api/orders/${orderId}/status`,
-        { status: newStatus }
-      );
-      
+      await axios.put(BACKEND_URL + `api/orders/${orderId}/status`, {
+        status: newStatus,
+      });
+
       // Refresh orders data
       const res = await axios.get(BACKEND_URL + "api/orders/", {});
-      const ordersArray = res.data && res.data.orders && Array.isArray(res.data.orders) ? res.data.orders : [];
+      const ordersArray =
+        res.data && res.data.orders && Array.isArray(res.data.orders)
+          ? res.data.orders
+          : [];
       setOrders(ordersArray);
     } catch (error) {
       console.error("Error updating order status:", error);
@@ -219,14 +229,16 @@ export default function KitchenScreen() {
     setLoading(orderId);
     try {
       const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:5000/";
-      await axios.put(
-        BACKEND_URL + `api/orders/${orderId}/status`,
-        { status: 'completed' }
-      );
-      
+      await axios.put(BACKEND_URL + `api/orders/${orderId}/status`, {
+        status: "completed",
+      });
+
       // Refresh orders data
       const res = await axios.get(BACKEND_URL + "api/orders/", {});
-      const ordersArray = res.data && res.data.orders && Array.isArray(res.data.orders) ? res.data.orders : [];
+      const ordersArray =
+        res.data && res.data.orders && Array.isArray(res.data.orders)
+          ? res.data.orders
+          : [];
       setOrders(ordersArray);
     } catch (error) {
       console.error("Error marking order as completed:", error);
@@ -251,20 +263,20 @@ export default function KitchenScreen() {
     });
   };
 
-  const getStatusColor = (status: Order['status']) => {
+  const getStatusColor = (status: Order["status"]) => {
     switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'preparing':
-        return 'bg-blue-100 text-blue-800';
-      case 'ready':
-        return 'bg-green-100 text-green-800';
-      case 'delivered':
-        return 'bg-gray-100 text-gray-800';
-      case 'completed':
-        return 'bg-green-100 text-green-800';
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "preparing":
+        return "bg-blue-100 text-blue-800";
+      case "ready":
+        return "bg-green-100 text-green-800";
+      case "delivered":
+        return "bg-gray-100 text-gray-800";
+      case "completed":
+        return "bg-green-100 text-green-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -295,21 +307,21 @@ export default function KitchenScreen() {
           {/* Tab Navigation */}
           <div className="flex border-b border-gray-200">
             <button
-              onClick={() => setActiveTab('customers')}
+              onClick={() => setActiveTab("customers")}
               className={`flex-1 py-4 px-6 text-center font-semibold transition-colors ${
-                activeTab === 'customers'
-                  ? 'bg-[#FFB347] text-gray-900 border-b-2 border-[#FFB347]'
-                  : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                activeTab === "customers"
+                  ? "bg-[#FFB347] text-gray-900 border-b-2 border-[#FFB347]"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
               }`}
             >
               Arrived Customers
             </button>
             <button
-              onClick={() => setActiveTab('orders')}
+              onClick={() => setActiveTab("orders")}
               className={`flex-1 py-4 px-6 text-center font-semibold transition-colors ${
-                activeTab === 'orders'
-                  ? 'bg-[#FFB347] text-gray-900 border-b-2 border-[#FFB347]'
-                  : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                activeTab === "orders"
+                  ? "bg-[#FFB347] text-gray-900 border-b-2 border-[#FFB347]"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
               }`}
             >
               Orders
@@ -317,14 +329,15 @@ export default function KitchenScreen() {
           </div>
 
           {/* Tab Content */}
-          {activeTab === 'customers' && (
+          {activeTab === "customers" && (
             <>
               <div className="bg-[#FFB347] p-4">
                 {/*<h2 className="text-2xl font-bold text-center">
                   Arrived Customers
                 </h2>*/}
                 <p className="text-center text-sm mt-1">
-                  Staff must tick the box after delivering the food to the customer
+                  Staff must tick the box after delivering the food to the
+                  customer
                 </p>
               </div>
 
@@ -361,7 +374,9 @@ export default function KitchenScreen() {
                             {/*<td className="py-4 px-4">{customer.order_details}</td>*/}
                             <td className="py-4 px-4 text-center">
                               <button
-                                onClick={() => handleMarkCompleted(customer._id)}
+                                onClick={() =>
+                                  handleMarkCompleted(customer._id)
+                                }
                                 className={`w-8 h-8 border-2 rounded inline-flex items-center justify-center transition-colors ${
                                   loading === customer._id
                                     ? "border-gray-400 bg-gray-200 cursor-not-allowed"
@@ -389,7 +404,7 @@ export default function KitchenScreen() {
             </>
           )}
 
-          {activeTab === 'orders' && (
+          {activeTab === "orders" && (
             <>
               <div className="bg-[#FFB347] p-4">
                 {/*<h2 className="text-2xl font-bold text-center">
@@ -414,76 +429,109 @@ export default function KitchenScreen() {
                           <th className="text-left py-2 px-4">Phone</th>
                           <th className="text-left py-2 px-4">Order Time</th>
                           <th className="text-left py-2 px-4">Order Details</th>
+                          <th className="text-left py-2 px-4">Arriving</th>
                           <th className="text-left py-2 px-4">Total</th>
                           <th className="text-center py-2 px-4">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {Array.isArray(orders) && orders.map((order) => (
-                          <tr
-                            key={order._id}
-                            className="border-b border-gray-100"
-                          >
-                            <td className="py-4 px-4 font-semibold">
-                              {order.name}
-                            </td>
-                            <td className="py-4 px-4">{order.phone}</td>
-                            <td className="py-4 px-4">
-                              {formatTime(new Date(order.createdAt).getTime())}
-                            </td>
-                            <td className="py-4 px-4">
-                              <div className="max-w-xs">
-                                <div className="text-sm font-medium">
-                                  Order #{order.orderNumber}
-                                </div>
-                                <div className="text-sm text-gray-700 mt-1">
-                                  <div className="bg-gray-50 p-2 rounded border">
-                                    <div className="font-semibold text-gray-800 mb-2">Products:</div>
-                                    <div className="space-y-1">
-                                      {orderDetails[order._id] && orderDetails[order._id].length > 0 ? (
-                                        <div className="space-y-1">
-                                          {orderDetails[order._id].map((item, index) => (
-                                            <div key={index} className="flex justify-between text-xs">
-                                              <span className="text-gray-700">{item.productName}</span>
-                                              <span className="text-gray-500">x{item.quantity}</span>
-                                            </div>
-                                          ))}
-                                          {/*<div className="text-xs text-gray-500 mt-1 pt-1 border-t">
+                        {Array.isArray(orders) &&
+                          orders.map((order) => (
+                            <tr
+                              key={order._id}
+                              className="border-b border-gray-100"
+                            >
+                              <td className="py-4 px-4 font-semibold">
+                                {order.name}
+                              </td>
+                              <td className="py-4 px-4">{order.phone}</td>
+                              <td className="py-4 px-4">
+                                {formatTime(
+                                  new Date(order.createdAt).getTime()
+                                )}
+                              </td>
+                              <td className="py-4 px-4">
+                                <div className="max-w-xs">
+                                  <div className="text-sm font-medium">
+                                    Order #{order.orderNumber}
+                                  </div>
+                                  <div className="text-sm text-gray-700 mt-1">
+                                    <div className="bg-gray-50 p-2 rounded border">
+                                      <div className="font-semibold text-gray-800 mb-2">
+                                        Products:
+                                      </div>
+                                      <div className="space-y-1">
+                                        {orderDetails[order._id] &&
+                                        orderDetails[order._id].length > 0 ? (
+                                          <div className="space-y-1">
+                                            {orderDetails[order._id].map(
+                                              (item, index) => (
+                                                <div
+                                                  key={index}
+                                                  className="flex justify-between text-xs"
+                                                >
+                                                  <span className="text-gray-700">
+                                                    {item.productName}
+                                                  </span>
+                                                  <span className="text-gray-500">
+                                                    x{item.quantity}
+                                                  </span>
+                                                </div>
+                                              )
+                                            )}
+                                            {/*<div className="text-xs text-gray-500 mt-1 pt-1 border-t">
                                             <div className="flex justify-between">
                                               <span>Subtotal:</span>
                                               <span>${orderDetails[order._id].reduce((sum, item) => sum + item.totalPrice, 0).toFixed(2)}</span>
                                             </div>
                                           </div>*/}
-                                        </div>
-                                      ) : (
-                                        <div className="text-gray-500 italic text-xs">
-                                          Loading products...
-                                        </div>
-                                      )}
-                                      {/*<div className="text-xs text-gray-600 mt-2">
+                                          </div>
+                                        ) : (
+                                          <div className="text-gray-500 italic text-xs">
+                                            Loading products...
+                                          </div>
+                                        )}
+                                        {/*<div className="text-xs text-gray-600 mt-2">
                                         <div className="flex justify-between">
                                           <span>Order Total:</span>
                                           <span className="font-medium">${order.totalAmount.toFixed(2)}</span>
                                         </div>
                                       </div>*/}
+                                      </div>
                                     </div>
+                                    {order.notes && (
+                                      <div className="text-xs text-gray-500 mt-2">
+                                        <span className="font-medium">
+                                          Notes:
+                                        </span>{" "}
+                                        {order.notes}
+                                      </div>
+                                    )}
                                   </div>
-                                  {order.notes && (
-                                    <div className="text-xs text-gray-500 mt-2">
-                                      <span className="font-medium">Notes:</span> {order.notes}
-                                    </div>
-                                  )}
                                 </div>
-                              </div>
-                            </td>
-                                                          <td className="py-4 px-4">
+                              </td>
+                              <td className="py-4 px-4">
+                                {/* Arriving column: show Yes if customer checked in, No otherwise */}
+                                {activeCheckin.some(
+                                  (c) => c.phone === order.phone
+                                ) ? (
+                                  <span className="text-green-600 font-semibold">
+                                    Yes
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-400">No</span>
+                                )}
+                              </td>
+                              <td className="py-4 px-4">
                                 ${order.totalAmount.toFixed(2)}
                               </td>
                               <td className="py-4 px-4 text-center">
                                 <div className="flex justify-center">
-                                  {order.status === 'pending' && (
+                                  {order.status === "pending" && (
                                     <button
-                                      onClick={() => handleMarkOrderCompleted(order._id)}
+                                      onClick={() =>
+                                        handleMarkOrderCompleted(order._id)
+                                      }
                                       disabled={loading === order._id}
                                       className={`w-8 h-8 border-2 rounded inline-flex items-center justify-center transition-colors ${
                                         loading === order._id
@@ -497,9 +545,11 @@ export default function KitchenScreen() {
                                       ) : null}
                                     </button>
                                   )}
-                                  {order.status === 'preparing' && (
+                                  {order.status === "preparing" && (
                                     <button
-                                      onClick={() => handleMarkOrderCompleted(order._id)}
+                                      onClick={() =>
+                                        handleMarkOrderCompleted(order._id)
+                                      }
                                       disabled={loading === order._id}
                                       className={`w-8 h-8 border-2 rounded inline-flex items-center justify-center transition-colors ${
                                         loading === order._id
@@ -513,9 +563,11 @@ export default function KitchenScreen() {
                                       ) : null}
                                     </button>
                                   )}
-                                  {order.status === 'ready' && (
+                                  {order.status === "ready" && (
                                     <button
-                                      onClick={() => handleMarkOrderCompleted(order._id)}
+                                      onClick={() =>
+                                        handleMarkOrderCompleted(order._id)
+                                      }
                                       disabled={loading === order._id}
                                       className={`w-8 h-8 border-2 rounded inline-flex items-center justify-center transition-colors ${
                                         loading === order._id
@@ -529,9 +581,11 @@ export default function KitchenScreen() {
                                       ) : null}
                                     </button>
                                   )}
-                                  {order.status === 'delivered' && (
+                                  {order.status === "delivered" && (
                                     <button
-                                      onClick={() => handleMarkOrderCompleted(order._id)}
+                                      onClick={() =>
+                                        handleMarkOrderCompleted(order._id)
+                                      }
                                       disabled={loading === order._id}
                                       className={`w-8 h-8 border-2 rounded inline-flex items-center justify-center transition-colors ${
                                         loading === order._id
@@ -550,8 +604,8 @@ export default function KitchenScreen() {
                                   )}
                                 </div>
                               </td>
-                          </tr>
-                        ))}
+                            </tr>
+                          ))}
                       </tbody>
                     </table>
                   </div>
@@ -561,7 +615,7 @@ export default function KitchenScreen() {
           )}
         </div>
 
-        {completedCheckin.length > 0 && activeTab === 'customers' && (
+        {completedCheckin.length > 0 && activeTab === "customers" && (
           <div className="mt-8 bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="bg-green-100 p-4">
               <h2 className="text-xl font-bold text-center text-green-800">
