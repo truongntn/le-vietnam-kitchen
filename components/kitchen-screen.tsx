@@ -61,7 +61,7 @@ export default function KitchenScreen() {
   const [completedCheckin, setCompletedCheckin] = useState<Customer[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [activeTab, setActiveTab] = useState<"customers" | "orders">(
-    "customers"
+    "orders"
   );
   const [orderDetails, setOrderDetails] = useState<{
     [key: string]: OrderItem[];
@@ -306,7 +306,7 @@ export default function KitchenScreen() {
         <div className="bg-white rounded-lg shadow-lg overflow-hidden">
           {/* Tab Navigation */}
           <div className="flex border-b border-gray-200">
-            <button
+            {/*<button
               onClick={() => setActiveTab("customers")}
               className={`flex-1 py-4 px-6 text-center font-semibold transition-colors ${
                 activeTab === "customers"
@@ -315,7 +315,7 @@ export default function KitchenScreen() {
               }`}
             >
               Arrived Customers
-            </button>
+            </button>*/}
             <button
               onClick={() => setActiveTab("orders")}
               className={`flex-1 py-4 px-6 text-center font-semibold transition-colors ${
