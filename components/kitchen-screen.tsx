@@ -329,7 +329,7 @@ export default function KitchenScreen() {
             <button
               onClick={() => setActiveTab("history")}
               className={`flex-1 py-4 px-6 text-center font-semibold transition-colors ${
-                activeTab === "orders"
+                activeTab === "history"
                   ? "bg-[#FFB347] text-gray-900 border-b-2 border-[#FFB347]"
                   : "bg-gray-50 text-gray-600 hover:bg-gray-100"
               }`}
@@ -650,7 +650,7 @@ export default function KitchenScreen() {
                           <th className="text-left py-2 px-4">Order Details</th>
                           <th className="text-left py-2 px-4">Arriving</th>
                           <th className="text-left py-2 px-4">Total</th>
-                          <th className="text-center py-2 px-4">Actions</th>
+                          <th className="text-center py-2 px-4">Status</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -746,81 +746,7 @@ export default function KitchenScreen() {
                               </td>
                               <td className="py-4 px-4 text-center">
                                 <div className="flex justify-center">
-                                  {order.status === "pending" && (
-                                    <button
-                                      onClick={() =>
-                                        handleMarkOrderCompleted(order._id)
-                                      }
-                                      disabled={loading === order._id}
-                                      className={`w-8 h-8 border-2 rounded inline-flex items-center justify-center transition-colors ${
-                                        loading === order._id
-                                          ? "border-gray-400 bg-gray-200 cursor-not-allowed"
-                                          : "border-gray-400 hover:bg-green-50 hover:border-green-500"
-                                      }`}
-                                      aria-label="Mark order as completed"
-                                    >
-                                      {loading === order._id ? (
-                                        <div className="loader w-4 h-4 border-2 border-t-transparent border-gray-400 rounded-full animate-spin"></div>
-                                      ) : null}
-                                    </button>
-                                  )}
-                                  {order.status === "preparing" && (
-                                    <button
-                                      onClick={() =>
-                                        handleMarkOrderCompleted(order._id)
-                                      }
-                                      disabled={loading === order._id}
-                                      className={`w-8 h-8 border-2 rounded inline-flex items-center justify-center transition-colors ${
-                                        loading === order._id
-                                          ? "border-gray-400 bg-gray-200 cursor-not-allowed"
-                                          : "border-gray-400 hover:bg-green-50 hover:border-green-500"
-                                      }`}
-                                      aria-label="Mark order as completed"
-                                    >
-                                      {loading === order._id ? (
-                                        <div className="loader w-4 h-4 border-2 border-t-transparent border-gray-400 rounded-full animate-spin"></div>
-                                      ) : null}
-                                    </button>
-                                  )}
-                                  {order.status === "ready" && (
-                                    <button
-                                      onClick={() =>
-                                        handleMarkOrderCompleted(order._id)
-                                      }
-                                      disabled={loading === order._id}
-                                      className={`w-8 h-8 border-2 rounded inline-flex items-center justify-center transition-colors ${
-                                        loading === order._id
-                                          ? "border-gray-400 bg-gray-200 cursor-not-allowed"
-                                          : "border-gray-400 hover:bg-green-50 hover:border-green-500"
-                                      }`}
-                                      aria-label="Mark order as completed"
-                                    >
-                                      {loading === order._id ? (
-                                        <div className="loader w-4 h-4 border-2 border-t-transparent border-gray-400 rounded-full animate-spin"></div>
-                                      ) : null}
-                                    </button>
-                                  )}
-                                  {order.status === "delivered" && (
-                                    <button
-                                      onClick={() =>
-                                        handleMarkOrderCompleted(order._id)
-                                      }
-                                      disabled={loading === order._id}
-                                      className={`w-8 h-8 border-2 rounded inline-flex items-center justify-center transition-colors ${
-                                        loading === order._id
-                                          ? "border-gray-400 bg-gray-200 cursor-not-allowed"
-                                          : "border-gray-400 hover:bg-green-50 hover:border-green-500"
-                                      }`}
-                                      aria-label="Mark order as completed"
-                                    >
-                                      {loading === order._id ? (
-                                        <div className="loader w-4 h-4 border-2 border-t-transparent border-gray-400 rounded-full animate-spin"></div>
-                                      ) : null}
-                                    </button>
-                                  )}
-                                  {loading === order._id && (
-                                    <div className="loader w-4 h-4 border-2 border-t-transparent border-gray-400 rounded-full animate-spin mx-auto"></div>
-                                  )}
+                                  <Check className="h-5 w-5 text-green-600" />
                                 </div>
                               </td>
                             </tr>
