@@ -60,6 +60,7 @@ export default function KitchenScreen() {
   const [activeCheckin, setActiveCheckin] = useState<Customer[]>([]);
   const [completedCheckin, setCompletedCheckin] = useState<Customer[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [completedOrders, setCompletedOrders] = useState<Order[]>([]);
   const [activeTab, setActiveTab] = useState<
     "customers" | "orders" | "history"
   >("orders");
@@ -147,13 +148,37 @@ export default function KitchenScreen() {
       }
     };
 
+    const completedOrdersData = async () => {
+      try {
+        const res = await axios.get(
+          process.env.BACKEND_URL + "api/orders/hsistory",
+          {}
+        );
+        // Extract orders from the response structure
+        const ordersArray =
+          res.data && res.data.orders && Array.isArray(res.data.orders)
+            ? res.data.orders
+            : [];
+        setCompletedOrders(ordersArray);
+
+        // Auto-load order details for each order
+        for (const order of ordersArray) {
+          await fetchOrderDetails(order._id);
+        }
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+      }
+    };
+
     checkinData();
     ordersData();
+    completedOrdersData();
     setCompletedCheckin([]);
     // Poll the server every 5 seconds
     const interval = setInterval(() => {
       checkinData();
       ordersData();
+      completedOrdersData();
     }, 5000);
 
     // Cleanup interval on component unmount
@@ -635,7 +660,7 @@ export default function KitchenScreen() {
               </div>
 
               <div className="p-4">
-                {!Array.isArray(orders) || orders.length === 0 ? (
+                {!Array.isArray(completedOrders) || completedOrders.length === 0 ? (
                   <div className="text-center py-8 text-gray-500">
                     No orders to display
                   </div>
@@ -654,8 +679,8 @@ export default function KitchenScreen() {
                         </tr>
                       </thead>
                       <tbody>
-                        {Array.isArray(orders) &&
-                          orders.map((order) => (
+                        {Array.isArray(completedOrders) &&
+                          completedOrders.map((order) => (
                             <tr
                               key={order._id}
                               className="border-b border-gray-100"
