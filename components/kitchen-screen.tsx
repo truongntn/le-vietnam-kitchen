@@ -60,9 +60,9 @@ export default function KitchenScreen() {
   const [activeCheckin, setActiveCheckin] = useState<Customer[]>([]);
   const [completedCheckin, setCompletedCheckin] = useState<Customer[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [activeTab, setActiveTab] = useState<"customers" | "orders">(
-    "orders"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "customers" | "orders" | "history"
+  >("orders");
   const [orderDetails, setOrderDetails] = useState<{
     [key: string]: OrderItem[];
   }>({});
@@ -326,6 +326,16 @@ export default function KitchenScreen() {
             >
               Orders
             </button>
+            <button
+              onClick={() => setActiveTab("history")}
+              className={`flex-1 py-4 px-6 text-center font-semibold transition-colors ${
+                activeTab === "orders"
+                  ? "bg-[#FFB347] text-gray-900 border-b-2 border-[#FFB347]"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+              }`}
+            >
+              History
+            </button>
           </div>
 
           {/* Tab Content */}
@@ -405,6 +415,215 @@ export default function KitchenScreen() {
           )}
 
           {activeTab === "orders" && (
+            <>
+              <div className="bg-[#FFB347] p-4">
+                {/*<h2 className="text-2xl font-bold text-center">
+                  Orders
+                </h2>*/}
+                <p className="text-center text-sm mt-1">
+                  Manage order status and track preparation progress
+                </p>
+              </div>
+
+              <div className="p-4">
+                {!Array.isArray(orders) || orders.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    No orders to display
+                  </div>
+                ) : (
+                  <div className="h-[calc(100vh-250px)] overflow-y-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-200 sticky top-0 z-10">
+                        <tr className="border-b-2 border-gray-200">
+                          <th className="text-left py-2 px-4">Customer</th>
+                          <th className="text-left py-2 px-4">Phone</th>
+                          <th className="text-left py-2 px-4">Order Time</th>
+                          <th className="text-left py-2 px-4">Order Details</th>
+                          <th className="text-left py-2 px-4">Arriving</th>
+                          <th className="text-left py-2 px-4">Total</th>
+                          <th className="text-center py-2 px-4">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {Array.isArray(orders) &&
+                          orders.map((order) => (
+                            <tr
+                              key={order._id}
+                              className="border-b border-gray-100"
+                            >
+                              <td className="py-4 px-4 font-semibold">
+                                {order.name}
+                              </td>
+                              <td className="py-4 px-4">{order.phone}</td>
+                              <td className="py-4 px-4">
+                                {formatTime(
+                                  new Date(order.createdAt).getTime()
+                                )}
+                              </td>
+                              <td className="py-4 px-4">
+                                <div className="max-w-xs">
+                                  <div className="text-sm font-medium">
+                                    Order #{order.orderNumber}
+                                  </div>
+                                  <div className="text-sm text-gray-700 mt-1">
+                                    <div className="bg-gray-50 p-2 rounded border">
+                                      <div className="font-semibold text-gray-800 mb-2">
+                                        Products:
+                                      </div>
+                                      <div className="space-y-1">
+                                        {orderDetails[order._id] &&
+                                        orderDetails[order._id].length > 0 ? (
+                                          <div className="space-y-1">
+                                            {orderDetails[order._id].map(
+                                              (item, index) => (
+                                                <div
+                                                  key={index}
+                                                  className="flex justify-between text-xs"
+                                                >
+                                                  <span className="text-gray-700">
+                                                    {item.productName}
+                                                  </span>
+                                                  <span className="text-gray-500">
+                                                    x{item.quantity}
+                                                  </span>
+                                                </div>
+                                              )
+                                            )}
+                                            {/*<div className="text-xs text-gray-500 mt-1 pt-1 border-t">
+                                            <div className="flex justify-between">
+                                              <span>Subtotal:</span>
+                                              <span>${orderDetails[order._id].reduce((sum, item) => sum + item.totalPrice, 0).toFixed(2)}</span>
+                                            </div>
+                                          </div>*/}
+                                          </div>
+                                        ) : (
+                                          <div className="text-gray-500 italic text-xs">
+                                            Loading products...
+                                          </div>
+                                        )}
+                                        {/*<div className="text-xs text-gray-600 mt-2">
+                                        <div className="flex justify-between">
+                                          <span>Order Total:</span>
+                                          <span className="font-medium">${order.totalAmount.toFixed(2)}</span>
+                                        </div>
+                                      </div>*/}
+                                      </div>
+                                    </div>
+                                    {order.notes && (
+                                      <div className="text-xs text-gray-500 mt-2">
+                                        <span className="font-medium">
+                                          Notes:
+                                        </span>{" "}
+                                        {order.notes}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="py-4 px-4">
+                                {/* Arriving column: show Yes if customer checked in, No otherwise */}
+                                {activeCheckin.some(
+                                  (c) => c.phone === order.phone
+                                ) ? (
+                                  <span className="text-green-600 font-semibold">
+                                    Yes
+                                  </span>
+                                ) : (
+                                  <span className="text-gray-400">No</span>
+                                )}
+                              </td>
+                              <td className="py-4 px-4">
+                                ${order.totalAmount.toFixed(2)}
+                              </td>
+                              <td className="py-4 px-4 text-center">
+                                <div className="flex justify-center">
+                                  {order.status === "pending" && (
+                                    <button
+                                      onClick={() =>
+                                        handleMarkOrderCompleted(order._id)
+                                      }
+                                      disabled={loading === order._id}
+                                      className={`w-8 h-8 border-2 rounded inline-flex items-center justify-center transition-colors ${
+                                        loading === order._id
+                                          ? "border-gray-400 bg-gray-200 cursor-not-allowed"
+                                          : "border-gray-400 hover:bg-green-50 hover:border-green-500"
+                                      }`}
+                                      aria-label="Mark order as completed"
+                                    >
+                                      {loading === order._id ? (
+                                        <div className="loader w-4 h-4 border-2 border-t-transparent border-gray-400 rounded-full animate-spin"></div>
+                                      ) : null}
+                                    </button>
+                                  )}
+                                  {order.status === "preparing" && (
+                                    <button
+                                      onClick={() =>
+                                        handleMarkOrderCompleted(order._id)
+                                      }
+                                      disabled={loading === order._id}
+                                      className={`w-8 h-8 border-2 rounded inline-flex items-center justify-center transition-colors ${
+                                        loading === order._id
+                                          ? "border-gray-400 bg-gray-200 cursor-not-allowed"
+                                          : "border-gray-400 hover:bg-green-50 hover:border-green-500"
+                                      }`}
+                                      aria-label="Mark order as completed"
+                                    >
+                                      {loading === order._id ? (
+                                        <div className="loader w-4 h-4 border-2 border-t-transparent border-gray-400 rounded-full animate-spin"></div>
+                                      ) : null}
+                                    </button>
+                                  )}
+                                  {order.status === "ready" && (
+                                    <button
+                                      onClick={() =>
+                                        handleMarkOrderCompleted(order._id)
+                                      }
+                                      disabled={loading === order._id}
+                                      className={`w-8 h-8 border-2 rounded inline-flex items-center justify-center transition-colors ${
+                                        loading === order._id
+                                          ? "border-gray-400 bg-gray-200 cursor-not-allowed"
+                                          : "border-gray-400 hover:bg-green-50 hover:border-green-500"
+                                      }`}
+                                      aria-label="Mark order as completed"
+                                    >
+                                      {loading === order._id ? (
+                                        <div className="loader w-4 h-4 border-2 border-t-transparent border-gray-400 rounded-full animate-spin"></div>
+                                      ) : null}
+                                    </button>
+                                  )}
+                                  {order.status === "delivered" && (
+                                    <button
+                                      onClick={() =>
+                                        handleMarkOrderCompleted(order._id)
+                                      }
+                                      disabled={loading === order._id}
+                                      className={`w-8 h-8 border-2 rounded inline-flex items-center justify-center transition-colors ${
+                                        loading === order._id
+                                          ? "border-gray-400 bg-gray-200 cursor-not-allowed"
+                                          : "border-gray-400 hover:bg-green-50 hover:border-green-500"
+                                      }`}
+                                      aria-label="Mark order as completed"
+                                    >
+                                      {loading === order._id ? (
+                                        <div className="loader w-4 h-4 border-2 border-t-transparent border-gray-400 rounded-full animate-spin"></div>
+                                      ) : null}
+                                    </button>
+                                  )}
+                                  {loading === order._id && (
+                                    <div className="loader w-4 h-4 border-2 border-t-transparent border-gray-400 rounded-full animate-spin mx-auto"></div>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+          {activeTab === "history" && (
             <>
               <div className="bg-[#FFB347] p-4">
                 {/*<h2 className="text-2xl font-bold text-center">
