@@ -151,7 +151,7 @@ export default function KitchenScreen() {
     const completedOrdersData = async () => {
       try {
         const res = await axios.get(
-          process.env.BACKEND_URL + "api/orders/hsistory",
+          process.env.BACKEND_URL + "api/orders/history",
           {}
         );
         // Extract orders from the response structure
